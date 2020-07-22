@@ -1,0 +1,25 @@
+<ul class="nav navbar-nav ">
+    <li class="dropdown active">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+           aria-expanded="false">项目 <span class="caret"></span></a>
+        <ul class="dropdown-menu" style="text-align: left">
+            {% if  my_project_list %}
+                <li style="padding-left: 20px"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>我创建的
+                </li>
+                <li role="separator" class="divider"></li>
+                {% for my_project in my_project_list %}
+                    <li><a href="{% url 'web:dashboard' project_id=my_project.id %} ">{{ my_project.name }}</a></li>
+                {% endfor %}
+            {% endif %}
+        {% if  join_project_list %}
+            <li role="separator" class="divider"></li>
+            <li style="padding-left: 20px"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span>我参与的</li>
+            {% for join_project in  join_project_list %}
+                <li><a href="{% url 'web:dashboard' project_id=join_project.project.id %} ">{{ join_project.project.name }}</a></li>
+            {% endfor %}
+            <li role="separator" class="divider"></li>
+        {% endif %}
+            <li style="padding-left: 20px"><a href="{% url 'web:project_list' %}">所有项目</a></li>
+        </ul>
+    </li>
+</ul>

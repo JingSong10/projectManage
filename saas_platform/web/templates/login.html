@@ -1,0 +1,63 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+{% block title %}
+    用户登录
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/accout.css' %}">
+    <style>
+        .error-msg {
+            color: red;
+            position: absolute;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="account">
+        <div class="title">用户登录</div>
+        <form  method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'vail_code' %}
+                    <div class="form-group">
+                        <label for={{ field.id_for_label }}>{{ field.label }}</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding-left: 0">
+                                {{ field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 0">
+                                <img src="{% url 'web:code_image' %}" id="imageCode" alt="", title="点击更换图片">
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for={{ field.id_for_label }}>{{ field.label }}</label>
+                        {{ field }}
+                        <span class="error-msg">{{ field.errors.0 }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <br>
+            <div style="float: right">
+                <a href="{% url 'web:login_sms' %}">短信验证码登录</a>
+            </div>
+            <button id="btnSubmit" type="submit" class="btn btn-primary">登录</button>
+        </form>
+
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+    $(function () {
+        $('#imageCode').click(function () {
+            $('.error-msg').empty();
+            var oldSrc = $(this).attr('src');
+            $(this).attr('src', oldSrc + "?");
+
+        })
+    })
+    </script>
+{% endblock %}

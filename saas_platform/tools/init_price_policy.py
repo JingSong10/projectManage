@@ -1,0 +1,18 @@
+import tools.base
+from web import models
+
+def run():
+    exists = models.PricePolicy.objects.filter(category=1, title='免费版').exists()
+    if not exists:
+        models.PricePolicy.objects.create(
+            category=1,
+            title='免费版',
+            price=0,
+            project_num=20,
+            project_member= 10,
+            project_space = 20,
+            pre_file_size = 5
+        )
+
+if __name__ == '__main__':
+    run()

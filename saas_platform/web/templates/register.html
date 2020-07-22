@@ -1,0 +1,127 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+{% block title %}
+    用户注册
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/accout.css' %}">
+{#    <style>#}
+{#        .error-msg {#}
+{#            color: red;#}
+{#            position: absolute;#}
+{#        }#}
+{#    </style>#}
+{% endblock %}
+
+{% block content %}
+    <div class="account">
+        <div class="title">用户注册</div>
+        <form id="regForm" method="GET" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'vail_code' %}
+                    <div class="form-group">
+                        <label for={{ field.id_for_label }}>{{ field.label }}</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding-left: 0">
+                                {{ field }}
+                                <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 0"><input id="btnSms" type="button"
+                                                                                 class="btn btn-default"
+                                                                                 value="点击获取验证码" ></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for={{ field.id_for_label }}>{{ field.label }}</label>
+                        {{ field }}
+                        <span class="error-msg"></span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <br>
+            <button id="btnSubmit" type="button" class="btn btn-primary">注册</button>
+        </form>
+
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            bindclickbtnsms();
+            bindClickSubmit();
+        });
+        
+        function  bindClickSubmit() {
+            $("#btnSubmit").click(function () {
+                $('.error-msg').empty();
+                {#var regFormData = $("#regForm").serialize();#}
+                $.ajax({
+                    url: "{% url 'web:register' %}",
+                    type: "POST",
+                    data: $("#regForm").serialize(),
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status){
+                            location.href = res.data;
+                        }else{
+                            $.each(res.error, function (key, value) {
+                                document.getElementById("id_" + key).nextElementSibling.innerHTML = value[0];
+                                {#$("#id_" + key).next().text(value[0]);  // TODO#}
+                            })
+                        }
+                    }
+                })
+            })
+        }
+        
+        function bindclickbtnsms() {
+            $('#btnSms').click(function () {
+                // 获取手机号
+                $('.error-msg').empty();
+
+                var mobilePhone = $("#id_mobile_phone").val();
+                console.log(mobilePhone);
+                //  发送ajax请求
+                $.ajax({
+                    url: "{% url 'web:send_sms' %}",
+                    type: "GET",
+                    data: {
+                        mobile_phone: mobilePhone, tpl: "register"
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        {#res_dict = JSON.parse(res)#}
+                        // res 后端返回的值
+                        console.log(res);
+                        if (res.status) {
+                            console.log("倒计时")
+                            sendSmsRemind();
+                        } else {
+                            $.each(res.errors, function (key, value) {
+                                console.log(document.getElementById("id_mobile_phone").nextElementSibling.innerHTML = value[0]);
+                                $("#id_" + key).next().text(value[0]);  // TODO
+
+                            })
+                        }
+                    }
+                })
+            })
+
+        }
+        function sendSmsRemind(){
+                var $smsBtn = $("#btnSms");
+                $smsBtn.prop('disabled', true);
+                var time = 60;
+                var remind = setInterval(function () {
+                    $smsBtn.val(time + '重新发送');
+                    time = time - 1;
+                    if (time == 0){
+                        clearInterval(remind);
+                        $smsBtn.val('点击获取验证码').prop('disabled', false);
+                    }
+                }, 1000)
+            }
+    </script>
+{% endblock %}
